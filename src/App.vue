@@ -1,12 +1,19 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useTheme } from './composables/useTheme'
 import Navbar from './components/Navbar.vue'
 import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
 
 const route = useRoute()
 const isLoginPage = computed(() => route.path === '/login')
+
+// Initialize theme on app load
+const { initializeTheme } = useTheme()
+onMounted(() => {
+  initializeTheme()
+})
 </script>
 
 <template>

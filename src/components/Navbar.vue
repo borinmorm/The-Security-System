@@ -1,6 +1,9 @@
 <template>
   <nav
-    class="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white shadow-lg h-16 flex-shrink-0"
+    class="text-white shadow-lg h-16 flex-shrink-0"
+    :style="{
+      background: `linear-gradient(to right, var(--color-primary), var(--color-secondary), ${getThemeColor('darker')})`,
+    }"
   >
     <div class="h-full px-6 flex">
       <div class="flex justify-between items-center w-full">
@@ -12,7 +15,7 @@
           </div>
           <div>
             <span class="text-xl font-bold text-white">Security System</span>
-            <p class="text-blue-100 text-xs">Secure Lending Platform</p>
+            <p class="text-white text-opacity-70 text-xs">Secure Lending Platform</p>
           </div>
         </div>
         <div class="flex items-center gap-6">
@@ -53,7 +56,7 @@
               :size="userName.length || 10"
               @blur="updateUserName"
               @keyup.enter="updateUserName"
-              class="text-sm text-white bg-transparent focus:outline-none focus:bg-blue-500 focus:bg-opacity-30 focus:rounded px-2 py-1"
+              class="text-sm text-white bg-transparent focus:outline-none focus:bg-white focus:bg-opacity-20 focus:rounded px-2 py-1"
             />
           </div>
         </div>
@@ -67,12 +70,31 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { BuildingIcon, UserIcon } from 'lucide-vue-next'
 import { useLocalStorage } from '../composables/useLocalStorage'
+import { useTheme } from '../composables/useTheme'
 
 const router = useRouter()
 const { getItem, setItem } = useLocalStorage()
+const { themeUpdateTrigger, themeConfig, currentTheme } = useTheme()
 const userName = ref('Admin User')
 const avatarPreview = ref(null)
 const fileInput = ref(null)
+
+const getThemeColor = (variant) => {
+  const theme = themeConfig[currentTheme.value]
+  if (variant === 'darker') {
+    // Create a darker variant
+    return adjustBrightness(theme.secondary, -20)
+  }
+  return theme.primary
+}
+
+const adjustBrightness = (color, amount) => {
+  const rgb = parseInt(color.slice(1), 16)
+  const r = Math.min(255, Math.max(0, (rgb >> 16) + amount))
+  const g = Math.min(255, Math.max(0, ((rgb >> 8) & 0xff) + amount))
+  const b = Math.min(255, Math.max(0, (rgb & 0xff) + amount))
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`
+}
 
 onMounted(() => {
   // Load avatar from localStorage
