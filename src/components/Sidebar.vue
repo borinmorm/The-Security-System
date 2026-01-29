@@ -1,9 +1,8 @@
 <template>
   <aside
-    class="w-64 border-r h-full flex-shrink-0 p-4 flex flex-col"
+    class="w-64 border-r h-full flex-shrink-0 p-4 flex flex-col bg-white"
     :style="{
-      background: `linear-gradient(to bottom, var(--color-light), ${lightenColor(themeConfig[currentTheme].accent, 30)})`,
-      borderRightColor: 'var(--color-accent)',
+      borderRightColor: '#cbd5e1',
     }"
   >
     <div class="flex-1 overflow-y-auto space-y-1">
@@ -77,10 +76,10 @@
         <span class="font-medium">Settings</span>
       </router-link>
     </div>
-    <div class="pt-4" :style="{ borderTopColor: 'var(--color-accent)', borderTopWidth: '1px' }">
+    <div class="pt-4" :style="{ borderTopColor: '#e2e8f0', borderTopWidth: '1px' }">
       <button
         @click="handleLogout"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-medium text-red-600 hover:bg-red-50"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-medium text-red-700 hover:bg-red-50"
       >
         <LogOutIcon class="w-5 h-5 flex-shrink-0" />
         <span>Logout</span>

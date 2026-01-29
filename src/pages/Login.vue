@@ -1,11 +1,11 @@
 <template>
   <div
     class="min-h-screen w-full flex items-center justify-center bg-cover bg-center relative"
-    style="background-image: url('/src/assets/wallpaper.webp')"
+    style="background-image: url('/src/assets/wallpaper.jpg')"
   >
     <!-- Enhanced Gradient Overlay -->
     <div
-      class="absolute inset-0 bg-gradient-to-br from-blue-600/70 via-purple-600/60 to-blue-800/70"
+      class="absolute inset-0 bg-gradient-to-br from-slate-800/85 via-slate-700/80 to-slate-900/90"
     ></div>
 
     <!-- Additional Pattern Overlay -->
@@ -44,7 +44,7 @@
             v-model="formData.username"
             type="text"
             placeholder="Enter your username"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent"
             required
           />
         </div>
@@ -56,7 +56,7 @@
             v-model="formData.password"
             type="password"
             placeholder="Enter your password"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent"
             required
           />
         </div>
@@ -64,7 +64,7 @@
         <!-- Login Button -->
         <button
           type="submit"
-          class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg"
+          class="w-full bg-gradient-to-r from-slate-700 to-slate-800 text-white py-3 rounded-lg font-semibold hover:from-slate-800 hover:to-slate-900 transition-all shadow-lg"
         >
           Sign In
         </button>

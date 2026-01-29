@@ -17,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="h-screen flex flex-col bg-white">
+  <div class="h-screen flex flex-col bg-slate-50">
     <!-- Show layout only when not on login page -->
     <template v-if="!isLoginPage">
       <!-- Navbar -->
@@ -29,7 +29,7 @@ onMounted(() => {
         <Sidebar />
 
         <!-- Page Content -->
-        <main class="flex-1 overflow-auto bg-gray-50">
+        <main class="flex-1 overflow-auto bg-slate-100">
           <div class="h-full flex flex-col">
             <router-view />
             <!-- <Footer /> -->

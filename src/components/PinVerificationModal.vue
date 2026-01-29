@@ -4,22 +4,68 @@
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     @click="stopLoading"
   >
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+    <div
+      ref="modalRef"
+      class="bg-white rounded-lg shadow-xl resize-handle"
+      :style="{
+        position: 'fixed',
+        left: modalPosition.x + 'px',
+        top: modalPosition.y + 'px',
+        width: modalSize.width + 'px',
+        height: modalSize.height + 'px',
+        maxHeight: '90vh',
+      }"
+    >
+      <!-- Resize handles -->
+      <div
+        class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-10"
+        @mousedown="startResize($event, 'left')"
+      ></div>
+      <div
+        class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-10"
+        @mousedown="startResize($event, 'right')"
+      ></div>
+      <div
+        class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-10"
+        @mousedown="startResize($event, 'top')"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-10"
+        @mousedown="startResize($event, 'bottom')"
+      ></div>
+      <div
+        class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-10"
+        @mousedown="startResize($event, 'top-left')"
+      ></div>
+      <div
+        class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-10"
+        @mousedown="startResize($event, 'top-right')"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-10"
+        @mousedown="startResize($event, 'bottom-left')"
+      ></div>
+      <div
+        class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-10"
+        @mousedown="startResize($event, 'bottom-right')"
+      ></div>
+
       <!-- Header -->
       <div
-        class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-t-lg flex justify-between items-center"
+        class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-6 rounded-t-lg flex justify-between items-center cursor-move"
+        @mousedown="startDrag"
       >
         <div class="flex items-center gap-3">
           <ShieldIcon class="w-8 h-8" />
           <h2 class="text-2xl font-bold">PIN VERIFICATION</h2>
         </div>
-        <button @click="closeModal" class="text-white hover:bg-blue-700 p-2 rounded">
+        <button @click="closeModal" class="text-white hover:bg-slate-700 p-2 rounded">
           <XIcon class="w-6 h-6" />
         </button>
       </div>
 
       <!-- Content -->
-      <div class="p-8">
+      <div class="p-8 overflow-y-auto" :style="{ maxHeight: 'calc(100% - 96px)' }">
         <!-- Warning Message Input -->
         <div v-if="showWarning" class="border-2 border-red-500 bg-red-50 rounded-lg p-4 mb-6">
           <div class="flex items-center gap-3">
@@ -50,7 +96,7 @@
               v-model="formData.phoneNumber"
               type="text"
               placeholder="Enter phone number"
-              class="col-span-2 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="col-span-2 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500"
             />
           </div>
 
@@ -63,7 +109,7 @@
               v-model="formData.accountName"
               type="text"
               placeholder="Enter account name"
-              class="col-span-2 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="col-span-2 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500"
             />
           </div>
 
@@ -76,7 +122,7 @@
                 type="text"
                 placeholder="Enter amount"
                 @input="updateDepositAmount"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500"
               />
               <button
                 type="button"
@@ -95,7 +141,7 @@
               type="text"
               placeholder="Enter amount"
               @input="updateAdditionalAmount"
-              class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ml-4"
+              class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ml-4"
             />
           </div>
 
@@ -107,7 +153,7 @@
               type="text"
               placeholder="Enter amount"
               @input="updateVerifyAmount"
-              class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ml-4"
+              class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ml-4"
             />
           </div>
 
@@ -122,7 +168,7 @@
             </button>
             <button
               type="submit"
-              class="px-12 py-3 bg-blue-500 text-white rounded-full font-bold hover:bg-blue-600 transition shadow-lg text-lg"
+              class="px-12 py-3 bg-slate-700 text-white rounded-full font-bold hover:bg-slate-800 transition shadow-lg text-lg"
             >
               Complete
             </button>
@@ -147,7 +193,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { ShieldIcon, XIcon, AlertTriangleIcon, LockIcon } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -167,6 +213,15 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'submit'])
 
+const modalRef = ref(null)
+const isDragging = ref(false)
+const isResizing = ref(false)
+const resizeDirection = ref('')
+const dragStart = ref({ x: 0, y: 0 })
+const modalPosition = ref({ x: 0, y: 0 })
+const modalSize = ref({ width: 672, height: 700 })
+const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 })
+
 const showModal = ref(false)
 const showWarning = ref(true)
 const isProcessing = ref(false)
@@ -183,6 +238,121 @@ const formData = ref({
 })
 
 const additionalAmounts = ref([])
+
+// Center modal on open
+const centerModal = () => {
+  const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
+  const x = (windowWidth - modalSize.value.width) / 2
+  const y = (windowHeight - modalSize.value.height) / 2
+
+  modalPosition.value = { x, y }
+}
+
+const startDrag = (e) => {
+  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return
+  isDragging.value = true
+  dragStart.value = {
+    x: e.clientX - modalPosition.value.x,
+    y: e.clientY - modalPosition.value.y,
+  }
+}
+
+const onDrag = (e) => {
+  if (!isDragging.value) return
+
+  modalPosition.value = {
+    x: e.clientX - dragStart.value.x,
+    y: e.clientY - dragStart.value.y,
+  }
+}
+
+const stopDrag = () => {
+  isDragging.value = false
+}
+
+const handleEscapeKey = (event) => {
+  if (event.key === 'Escape') {
+    closeModal()
+  }
+}
+
+const startResize = (e, direction) => {
+  e.preventDefault()
+  e.stopPropagation()
+  isResizing.value = true
+  resizeDirection.value = direction
+  resizeStart.value = {
+    x: e.clientX,
+    y: e.clientY,
+    width: modalSize.value.width,
+    height: modalSize.value.height,
+    posX: modalPosition.value.x,
+    posY: modalPosition.value.y,
+  }
+}
+
+const onResize = (e) => {
+  if (!isResizing.value) return
+
+  const deltaX = e.clientX - resizeStart.value.x
+  const deltaY = e.clientY - resizeStart.value.y
+
+  const minWidth = 500
+  const minHeight = 400
+  const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
+
+  if (resizeDirection.value.includes('right')) {
+    const newWidth = Math.max(minWidth, resizeStart.value.width + deltaX)
+    modalSize.value.width = Math.min(newWidth, windowWidth - resizeStart.value.posX)
+  }
+  if (resizeDirection.value.includes('left')) {
+    const newWidth = Math.max(minWidth, resizeStart.value.width - deltaX)
+    if (newWidth > minWidth) {
+      const newX = resizeStart.value.posX + deltaX
+      if (newX >= 0) {
+        modalSize.value.width = newWidth
+        modalPosition.value.x = newX
+      }
+    }
+  }
+  if (resizeDirection.value.includes('bottom')) {
+    const newHeight = Math.max(minHeight, resizeStart.value.height + deltaY)
+    modalSize.value.height = Math.min(newHeight, windowHeight - resizeStart.value.posY)
+  }
+  if (resizeDirection.value.includes('top')) {
+    const newHeight = Math.max(minHeight, resizeStart.value.height - deltaY)
+    if (newHeight > minHeight) {
+      const newY = resizeStart.value.posY + deltaY
+      if (newY >= 0) {
+        modalSize.value.height = newHeight
+        modalPosition.value.y = newY
+      }
+    }
+  }
+}
+
+const stopResize = () => {
+  isResizing.value = false
+  resizeDirection.value = ''
+}
+
+onMounted(() => {
+  document.addEventListener('mousemove', onDrag)
+  document.addEventListener('mousemove', onResize)
+  document.addEventListener('mouseup', stopDrag)
+  document.addEventListener('mouseup', stopResize)
+  document.addEventListener('keydown', handleEscapeKey)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mousemove', onResize)
+  document.removeEventListener('mouseup', stopDrag)
+  document.removeEventListener('mouseup', stopResize)
+  document.removeEventListener('keydown', handleEscapeKey)
+})
 
 // Format number with commas (e.g., 1000 -> 1,000)
 const formatAmount = (value) => {
@@ -230,6 +400,7 @@ const updateAdditionalAmount = (event) => {
   if (additionalAmounts.value.length === 0) {
     additionalAmounts.value.push(0)
   }
+
   additionalAmounts.value[0] = value ? parseInt(value) : 0
 
   // Update display with formatted version
@@ -273,6 +444,7 @@ watch(
   (newVal) => {
     showModal.value = newVal
     if (newVal) {
+      centerModal()
       // Pre-fill with customer data if available
       if (props.customer) {
         formData.value.phoneNumber = props.customer.phone || ''
@@ -335,4 +507,8 @@ const resetForm = () => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.resize-handle {
+  user-select: none;
+}
+</style>

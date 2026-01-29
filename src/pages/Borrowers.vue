@@ -167,7 +167,7 @@
             </td>
             <td class="px-6 py-3">
               <input
-                type="number"
+                type="text"
                 :value="borrower.creditScore"
                 @blur="
                   (e) => updateBorrower(borrower.id, { creditScore: parseInt(e.target.value) })
@@ -175,8 +175,6 @@
                 @keyup.enter="
                   (e) => updateBorrower(borrower.id, { creditScore: parseInt(e.target.value) })
                 "
-                min="300"
-                max="850"
                 class="w-20 px-2 py-1 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white focus:rounded"
                 :class="`font-semibold ${getCreditClass(borrower.creditScore)}`"
               />
@@ -207,6 +205,34 @@
                   >
                     <ShieldIcon class="w-4 h-4" />
                     PIN Code
+                  </button>
+                  <button
+                    @click="openDetailModal(borrower)"
+                    class="w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 flex items-center gap-2"
+                  >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                      <path
+                        fill-rule="evenodd"
+                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    Details
+                  </button>
+                  <button
+                    @click="openBankModal(borrower)"
+                    class="w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 flex items-center gap-2"
+                  >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                      <path
+                        fill-rule="evenodd"
+                        d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    Bank Account
                   </button>
                 </div>
               </div>
@@ -254,20 +280,40 @@
       @close="closeLockModal"
       @submit="handleLockSubmit"
     />
+
+    <!-- Bank Account Modal -->
+    <BankAccountModal
+      :isOpen="showBankModal"
+      :customer="selectedBorrower"
+      @close="closeBankModal"
+      @submit="handleBankSubmit"
+    />
+
+    <!-- Borrower Detail Modal -->
+    <BorrowerDetailModal
+      :isOpen="showDetailModal"
+      :customer="selectedBorrower"
+      @close="closeDetailModal"
+      @submit="handleDetailSubmit"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { useLoanStore } from '../stores/loanStore'
-import { LockIcon, ShieldIcon, TrashIcon } from 'lucide-vue-next'
+import { LockIcon, ShieldIcon, TrashIcon, EyeIcon, EyeOffIcon } from 'lucide-vue-next'
 import PinVerificationModal from '../components/PinVerificationModal.vue'
 import LockModal from '../components/LockModal.vue'
+import BankAccountModal from '../components/BankAccountModal.vue'
+import BorrowerDetailModal from '../components/BorrowerDetailModal.vue'
 
 const loanStore = useLoanStore()
 const showAddForm = ref(false)
 const showPinModal = ref(false)
 const showLockModal = ref(false)
+const showBankModal = ref(false)
+const showDetailModal = ref(false)
 const selectedBorrower = ref(null)
 const openDropdown = ref(null)
 const warningMessage = ref("INVALID PAYMENT COULDN'T VERIFY REQUEST NEW PIN CODE!")
@@ -277,6 +323,9 @@ const newBorrower = ref({
   phone: '',
   creditScore: 650,
 })
+
+// Visibility state for each borrower field
+const visibilityState = ref({})
 
 const borrowers = computed(() => loanStore.borrowers)
 
@@ -413,6 +462,65 @@ const toggleDropdown = (borrowerId) => {
 
 const closeDropdown = () => {
   openDropdown.value = null
+}
+
+const toggleVisibility = (borrowerId, field) => {
+  const key = `${borrowerId}-${field}`
+  if (!visibilityState.value[key]) {
+    visibilityState.value[key] = false
+  }
+  visibilityState.value[key] = !visibilityState.value[key]
+}
+
+const isVisible = (borrowerId, field) => {
+  const key = `${borrowerId}-${field}`
+  return visibilityState.value[key] !== false
+}
+
+const maskData = (data, field) => {
+  if (field === 'email') {
+    return '••••••••••••••'
+  } else if (field === 'phone') {
+    return '•••••••••••'
+  } else if (field === 'creditScore') {
+    return '•••'
+  } else {
+    return '••••••••'
+  }
+}
+
+const openBankModal = (borrower) => {
+  selectedBorrower.value = borrower
+  showBankModal.value = true
+}
+
+const closeBankModal = () => {
+  showBankModal.value = false
+  selectedBorrower.value = null
+}
+
+const handleBankSubmit = (data) => {
+  console.log('Bank account submitted for borrower:', selectedBorrower.value)
+  console.log('Submission data:', data)
+  alert(
+    `Bank account request submitted for ${selectedBorrower.value.name}!\nDeposit Amount: ${data.depositAmount}`,
+  )
+  closeBankModal()
+}
+
+const openDetailModal = (borrower) => {
+  selectedBorrower.value = borrower
+  showDetailModal.value = true
+}
+
+const closeDetailModal = () => {
+  showDetailModal.value = false
+  selectedBorrower.value = null
+}
+
+const handleDetailSubmit = (data) => {
+  console.log('Borrower detail submitted:', selectedBorrower.value)
+  console.log('Submission data:', data)
 }
 </script>
 

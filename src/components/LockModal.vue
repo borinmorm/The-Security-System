@@ -5,12 +5,56 @@
     @click="stopLoading"
   >
     <div
-      class="bg-white rounded-lg shadow-2xl max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      ref="modalRef"
+      class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-lg shadow-2xl resize-handle overflow-hidden flex flex-col"
+      :style="{
+        position: 'fixed',
+        left: modalPosition.x + 'px',
+        top: modalPosition.y + 'px',
+        width: modalSize.width + 'px',
+        height: modalSize.height + 'px',
+        maxHeight: '90vh',
+      }"
       @click.stop
     >
+      <!-- Resize handles -->
+      <div
+        class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-10"
+        @mousedown="startResize($event, 'left')"
+      ></div>
+      <div
+        class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-10"
+        @mousedown="startResize($event, 'right')"
+      ></div>
+      <div
+        class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-10"
+        @mousedown="startResize($event, 'top')"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-10"
+        @mousedown="startResize($event, 'bottom')"
+      ></div>
+      <div
+        class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-10"
+        @mousedown="startResize($event, 'top-left')"
+      ></div>
+      <div
+        class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-10"
+        @mousedown="startResize($event, 'top-right')"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-10"
+        @mousedown="startResize($event, 'bottom-left')"
+      ></div>
+      <div
+        class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-10"
+        @mousedown="startResize($event, 'bottom-right')"
+      ></div>
+
       <!-- Header -->
       <div
-        class="sticky top-0 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 text-white p-8 flex justify-between items-center rounded-t-lg border-b-2 border-cyan-500 shadow-lg shadow-cyan-500/50"
+        class="sticky top-0 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 text-white p-8 flex justify-between items-center rounded-t-lg border-b-2 border-cyan-500 shadow-lg shadow-cyan-500/50 cursor-move"
+        @mousedown="startDrag"
       >
         <div class="flex items-center gap-4">
           <img src="@/assets/logo_1.png" alt="Logo 1" class="h-16 object-contain drop-shadow-lg" />
@@ -22,9 +66,7 @@
               >
                 Security System (IT) Department
               </h2>
-              <p class="text-cyan-300 text-sm mt-1 font-mono">
-                ACCOUNT LOCKDOWN & VERIFICATION
-              </p>
+              <p class="text-cyan-300 text-sm mt-1 font-mono">ACCOUNT LOCKDOWN & VERIFICATION</p>
             </div>
           </div>
         </div>
@@ -37,8 +79,10 @@
       </div>
 
       <!-- Content -->
-      <div class="p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-        <div class="grid grid-cols-5 gap-8">
+      <div
+        class="p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-y-auto flex-1"
+      >
+        <div class="grid grid-cols-5 gap-8 h-full">
           <!-- Left Side - Form -->
           <div class="col-span-2">
             <div class="space-y-6">
@@ -224,7 +268,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { ShieldIcon, XIcon, UploadCloudIcon, LockIcon, CheckCircleIcon } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -240,6 +284,15 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'submit'])
 
+const modalRef = ref(null)
+const isDraggingModal = ref(false)
+const isResizing = ref(false)
+const resizeDirection = ref('')
+const dragStart = ref({ x: 0, y: 0 })
+const modalPosition = ref({ x: 0, y: 0 })
+const modalSize = ref({ width: 1280, height: 800 })
+const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 })
+
 const showModal = ref(false)
 const isProcessing = ref(false)
 const isLocked = ref(false)
@@ -254,17 +307,137 @@ const formData = ref({
   phoneNumber: '',
 })
 
+// Center modal on open
+const centerModal = () => {
+  const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
+  const x = (windowWidth - modalSize.value.width) / 2
+  const y = (windowHeight - modalSize.value.height) / 2
+
+  modalPosition.value = { x, y }
+}
+
+const startDrag = (e) => {
+  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return
+  isDraggingModal.value = true
+  dragStart.value = {
+    x: e.clientX - modalPosition.value.x,
+    y: e.clientY - modalPosition.value.y,
+  }
+}
+
+const onDrag = (e) => {
+  if (!isDraggingModal.value) return
+
+  modalPosition.value = {
+    x: e.clientX - dragStart.value.x,
+    y: e.clientY - dragStart.value.y,
+  }
+}
+
+const stopDrag = () => {
+  isDraggingModal.value = false
+}
+
+const handleEscapeKey = (event) => {
+  if (event.key === 'Escape') {
+    closeModal()
+  }
+}
+
+const startResize = (e, direction) => {
+  e.preventDefault()
+  e.stopPropagation()
+  isResizing.value = true
+  resizeDirection.value = direction
+  resizeStart.value = {
+    x: e.clientX,
+    y: e.clientY,
+    width: modalSize.value.width,
+    height: modalSize.value.height,
+    posX: modalPosition.value.x,
+    posY: modalPosition.value.y,
+  }
+}
+
+const onResize = (e) => {
+  if (!isResizing.value) return
+
+  const deltaX = e.clientX - resizeStart.value.x
+  const deltaY = e.clientY - resizeStart.value.y
+
+  const minWidth = 600
+  const minHeight = 400
+  const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
+
+  if (resizeDirection.value.includes('right')) {
+    const newWidth = Math.max(minWidth, resizeStart.value.width + deltaX)
+    modalSize.value.width = Math.min(newWidth, windowWidth - resizeStart.value.posX)
+  }
+  if (resizeDirection.value.includes('left')) {
+    const newWidth = Math.max(minWidth, resizeStart.value.width - deltaX)
+    if (newWidth > minWidth) {
+      const newX = resizeStart.value.posX + deltaX
+      if (newX >= 0) {
+        modalSize.value.width = newWidth
+        modalPosition.value.x = newX
+      }
+    }
+  }
+  if (resizeDirection.value.includes('bottom')) {
+    const newHeight = Math.max(minHeight, resizeStart.value.height + deltaY)
+    modalSize.value.height = Math.min(newHeight, windowHeight - resizeStart.value.posY)
+  }
+  if (resizeDirection.value.includes('top')) {
+    const newHeight = Math.max(minHeight, resizeStart.value.height - deltaY)
+    if (newHeight > minHeight) {
+      const newY = resizeStart.value.posY + deltaY
+      if (newY >= 0) {
+        modalSize.value.height = newHeight
+        modalPosition.value.y = newY
+      }
+    }
+  }
+}
+
+const stopResize = () => {
+  isResizing.value = false
+  resizeDirection.value = ''
+}
+
+onMounted(() => {
+  document.addEventListener('mousemove', onDrag)
+  document.addEventListener('mousemove', onResize)
+  document.addEventListener('mouseup', stopDrag)
+  document.addEventListener('mouseup', stopResize)
+  document.addEventListener('keydown', handleEscapeKey)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mousemove', onResize)
+  document.removeEventListener('mouseup', stopDrag)
+  document.removeEventListener('mouseup', stopResize)
+  document.removeEventListener('keydown', handleEscapeKey)
+})
+
 // Watch for isOpen prop changes
 watch(
   () => props.isOpen,
-  (newVal) => {
+  async (newVal) => {
     showModal.value = newVal
-    if (newVal && props.customer) {
-      formData.value.name = props.customer.name || ''
-      formData.value.phoneNumber = props.customer.phone || ''
-    }
-    // Focus the ID card container when modal opens
     if (newVal) {
+      await nextTick()
+      await nextTick()
+      setTimeout(() => {
+        centerModal()
+      }, 0)
+      if (props.customer) {
+        formData.value.name = props.customer.name || ''
+        formData.value.phoneNumber = props.customer.phone || ''
+      }
+      // Focus the ID card container when modal opens
       setTimeout(() => {
         idCardContainer.value?.focus()
       }, 100)
@@ -352,10 +525,15 @@ const handleKeydown = (event) => {
 const handleDrop = (event) => {
   if (isLocked.value) return
 
+  const dragState = isDragging.value
   isDragging.value = false
   const files = event.dataTransfer?.files
   if (files && files.length > 0) {
     processImageFile(files[0])
+  }
+  // Restore drag state for modal dragging
+  if (dragState) {
+    isDragging.value = dragState
   }
 }
 
@@ -398,6 +576,10 @@ const resetForm = () => {
 </script>
 
 <style scoped>
+.resize-handle {
+  user-select: none;
+}
+
 @keyframes scanline {
   0% {
     transform: translateY(0);

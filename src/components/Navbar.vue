@@ -1,9 +1,6 @@
 <template>
   <nav
-    class="text-white shadow-lg h-16 flex-shrink-0"
-    :style="{
-      background: `linear-gradient(to right, var(--color-primary), var(--color-secondary), ${getThemeColor('darker')})`,
-    }"
+    class="text-white shadow-md h-16 flex-shrink-0 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900"
   >
     <div class="h-full px-6 flex">
       <div class="flex justify-between items-center w-full">
@@ -14,7 +11,7 @@
             <img src="@/assets/logo_3.png" alt="Logo" class="w-full h-full object-contain" />
           </div>
           <div>
-            <span class="text-xl font-bold text-white">Security System</span>
+            <span class="text-xl font-bold text-white">The Security System</span>
             <p class="text-white text-opacity-70 text-xs">Secure Lending Platform</p>
           </div>
         </div>
@@ -56,7 +53,7 @@
               :size="userName.length || 10"
               @blur="updateUserName"
               @keyup.enter="updateUserName"
-              class="text-sm text-white bg-transparent focus:outline-none focus:bg-white focus:bg-opacity-20 focus:rounded px-2 py-1"
+              class="text-sm text-white bg-transparent focus:outline-none focus:bg-white focus:bg-opacity-10 focus:rounded px-2 py-1 transition-colors"
             />
           </div>
         </div>
