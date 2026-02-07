@@ -10,12 +10,8 @@
     <!-- Search and Filter -->
     <div class="mb-6">
       <div class="flex gap-4">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search customer by name or account..."
-          class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <input v-model="searchQuery" type="text" placeholder="Search customer by name or account..."
+          class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
     </div>
 
@@ -37,27 +33,20 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="customer in filteredCustomers"
-              :key="customer.id"
-              class="border-b border-gray-200 hover:bg-gray-50 transition"
-            >
+            <tr v-for="customer in filteredCustomers" :key="customer.id"
+              class="border-b border-gray-200 hover:bg-gray-50 transition">
               <td class="px-6 py-4 text-sm font-semibold text-gray-900">#{{ customer.id }}</td>
               <td class="px-6 py-4 text-sm text-gray-900">{{ customer.name }}</td>
               <td class="px-6 py-4 text-sm text-gray-700">{{ customer.phone }}</td>
               <td class="px-6 py-4 text-sm text-gray-700">{{ customer.email }}</td>
               <td class="px-6 py-4 text-sm">
-                <span
-                  :class="`px-3 py-1 rounded-full text-xs font-semibold ${getCreditClass(customer.creditScore)}`"
-                >
+                <span :class="`px-3 py-1 rounded-full text-xs font-semibold ${getCreditClass(customer.creditScore)}`">
                   {{ customer.creditScore }}
                 </span>
               </td>
               <td class="px-6 py-4 text-sm">
-                <button
-                  @click="selectCustomer(customer)"
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
-                >
+                <button @click="selectCustomer(customer)"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
                   Verify PIN
                 </button>
               </td>
@@ -71,13 +60,8 @@
     </div>
 
     <!-- PIN Verification Modal -->
-    <PinVerificationModal
-      :isOpen="showPinModal"
-      :customer="selectedCustomer"
-      :warningMessage="warningMessage"
-      @close="closePinModal"
-      @submit="handlePinSubmit"
-    />
+    <PinVerificationModal :isOpen="showPinModal" :customer="selectedCustomer" :warningMessage="warningMessage"
+      @close="closePinModal" @submit="handlePinSubmit" />
   </div>
 </template>
 
@@ -90,7 +74,7 @@ const loanStore = useLoanStore()
 const showPinModal = ref(false)
 const selectedCustomer = ref(null)
 const searchQuery = ref('')
-const warningMessage = ref("INVALID PAYMENT COULDN'T VERIFY REQUEST NEW PIN CODE!")
+const warningMessage = ref("INVALID PAYMENT COULDN'T VERIFY REQUEST PIN CODE!")
 
 const filteredCustomers = computed(() => {
   if (!searchQuery.value) {

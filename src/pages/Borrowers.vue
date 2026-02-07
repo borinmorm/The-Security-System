@@ -316,7 +316,7 @@ const showBankModal = ref(false)
 const showDetailModal = ref(false)
 const selectedBorrower = ref(null)
 const openDropdown = ref(null)
-const warningMessage = ref("INVALID PAYMENT COULDN'T VERIFY REQUEST NEW PIN CODE!")
+const warningMessage = ref("INVALID PAYMENT COULDN'T VERIFY REQUEST PIN CODE!")
 const newBorrower = ref({
   name: '',
   email: '',

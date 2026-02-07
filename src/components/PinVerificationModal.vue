@@ -1,60 +1,35 @@
 <template>
-  <div
-    v-if="showModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    @click="stopLoading"
-  >
-    <div
-      ref="modalRef"
-      class="bg-white rounded-lg shadow-xl resize-handle"
-      :style="{
-        position: 'fixed',
-        left: modalPosition.x + 'px',
-        top: modalPosition.y + 'px',
-        width: modalSize.width + 'px',
-        height: modalSize.height + 'px',
-        maxHeight: '90vh',
-      }"
-    >
+  <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    @click="stopLoading">
+    <div ref="modalRef" class="bg-white rounded-lg shadow-xl resize-handle flex flex-col" :style="{
+      position: 'fixed',
+      left: modalPosition.x + 'px',
+      top: modalPosition.y + 'px',
+      width: modalSize.width + 'px',
+      height: modalSize.height + 'px',
+      maxHeight: '85vh',
+    }">
       <!-- Resize handles -->
-      <div
-        class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-10"
-        @mousedown="startResize($event, 'left')"
-      ></div>
-      <div
-        class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-10"
-        @mousedown="startResize($event, 'right')"
-      ></div>
-      <div
-        class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-10"
-        @mousedown="startResize($event, 'top')"
-      ></div>
-      <div
-        class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-10"
-        @mousedown="startResize($event, 'bottom')"
-      ></div>
-      <div
-        class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-10"
-        @mousedown="startResize($event, 'top-left')"
-      ></div>
-      <div
-        class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-10"
-        @mousedown="startResize($event, 'top-right')"
-      ></div>
-      <div
-        class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-10"
-        @mousedown="startResize($event, 'bottom-left')"
-      ></div>
-      <div
-        class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-10"
-        @mousedown="startResize($event, 'bottom-right')"
-      ></div>
+      <div class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-10" @mousedown="startResize($event, 'left')">
+      </div>
+      <div class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-10" @mousedown="startResize($event, 'right')">
+      </div>
+      <div class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-10" @mousedown="startResize($event, 'top')"></div>
+      <div class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-10" @mousedown="startResize($event, 'bottom')">
+      </div>
+      <div class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-10" @mousedown="startResize($event, 'top-left')">
+      </div>
+      <div class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-10" @mousedown="startResize($event, 'top-right')">
+      </div>
+      <div class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-10"
+        @mousedown="startResize($event, 'bottom-left')"></div>
+      <div class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-10"
+        @mousedown="startResize($event, 'bottom-right')"></div>
 
       <!-- Header -->
       <div
         class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-6 rounded-t-lg flex justify-between items-center cursor-move"
-        @mousedown="startDrag"
-      >
+        @mousedown="startDrag">
         <div class="flex items-center gap-3">
           <ShieldIcon class="w-8 h-8" />
           <h2 class="text-2xl font-bold">PIN VERIFICATION</h2>
@@ -65,23 +40,17 @@
       </div>
 
       <!-- Content -->
-      <div class="p-8 overflow-y-auto" :style="{ maxHeight: 'calc(100% - 96px)' }">
+      <div class="p-8 overflow-y-auto flex-1" :style="{ maxHeight: 'calc(85vh - 96px)' }">
         <!-- Warning Message Input -->
         <div v-if="showWarning" class="border-2 border-red-500 bg-red-50 rounded-lg p-4 mb-6">
           <div class="flex items-center gap-3">
-            <button
-              type="button"
-              @click="showWarning = false"
-              class="flex-shrink-0 text-red-600 hover:text-red-800 transition"
-            >
+            <button type="button" @click="showWarning = false"
+              class="flex-shrink-0 text-red-600 hover:text-red-800 transition">
               <AlertTriangleIcon class="w-6 h-6" />
             </button>
-            <input
-              v-model="warningMessageInput"
-              type="text"
+            <input v-model="warningMessageInput" type="text"
               class="flex-1 bg-red-50 border-0 text-red-600 font-bold text-lg focus:outline-none focus:ring-0 placeholder-red-400"
-              placeholder="Warning message"
-            />
+              placeholder="Warning message" />
           </div>
         </div>
 
@@ -89,45 +58,25 @@
         <form @submit.prevent="submitForm" class="space-y-4">
           <!-- Phone Number -->
           <div class="grid grid-cols-3 gap-4 items-center">
-            <label class="font-bold text-gray-700 text-sm bg-gray-100 px-4 py-3 rounded"
-              >PHONE NUMBER</label
-            >
-            <input
-              v-model="formData.phoneNumber"
-              type="text"
-              placeholder="Enter phone number"
-              class="col-span-2 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500"
-            />
+            <label class="font-bold text-gray-700 text-sm bg-gray-100 px-4 py-3 rounded">PHONE NUMBER</label>
+            <input v-model="formData.phoneNumber" type="text" placeholder="Enter phone number"
+              class="col-span-2 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500" />
           </div>
 
           <!-- Account Name -->
           <div class="grid grid-cols-3 gap-4 items-center">
-            <label class="font-bold text-gray-700 text-sm bg-gray-100 px-4 py-3 rounded"
-              >ACCOUNT NAME</label
-            >
-            <input
-              v-model="formData.accountName"
-              type="text"
-              placeholder="Enter account name"
-              class="col-span-2 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500"
-            />
+            <label class="font-bold text-gray-700 text-sm bg-gray-100 px-4 py-3 rounded">ACCOUNT NAME</label>
+            <input v-model="formData.accountName" type="text" placeholder="Enter account name"
+              class="col-span-2 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500" />
           </div>
 
           <!-- Deposit Amount -->
           <div class="flex items-center justify-between mb-4">
             <label class="font-bold text-gray-700 text-sm">DEPOSIT AMOUNT</label>
             <div class="flex gap-2 flex-1 ml-4">
-              <input
-                v-model="depositAmountDisplay"
-                type="text"
-                placeholder="Enter amount"
-                @input="updateDepositAmount"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500"
-              />
-              <button
-                type="button"
-                class="px-4 py-3 bg-gray-200 rounded hover:bg-gray-300 transition"
-              >
+              <input v-model="depositAmountDisplay" type="text" placeholder="Enter amount" @input="updateDepositAmount"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500" />
+              <button type="button" class="px-4 py-3 bg-gray-200 rounded hover:bg-gray-300 transition">
                 <LockIcon class="w-5 h-5 text-gray-600" />
               </button>
             </div>
@@ -136,40 +85,26 @@
           <!-- Add More Section -->
           <div class="flex items-center justify-between mb-4">
             <label class="font-bold text-red-600 text-sm">ADD MORE</label>
-            <input
-              v-model="additionalAmountDisplay"
-              type="text"
-              placeholder="Enter amount"
+            <input v-model="additionalAmountDisplay" type="text" placeholder="Enter amount"
               @input="updateAdditionalAmount"
-              class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ml-4"
-            />
+              class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ml-4" />
           </div>
 
           <!-- Verify Amount -->
           <div class="flex items-center justify-between mb-6">
             <label class="font-bold text-red-600 text-sm">VERIFY AMOUNT</label>
-            <input
-              v-model="verifyAmountDisplay"
-              type="text"
-              placeholder="Enter amount"
-              @input="updateVerifyAmount"
-              class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ml-4"
-            />
+            <input v-model="verifyAmountDisplay" type="text" placeholder="Enter amount" @input="updateVerifyAmount"
+              class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ml-4" />
           </div>
 
           <!-- Action Buttons -->
           <div class="flex justify-end gap-4 mt-8">
-            <button
-              type="button"
-              @click="closeModal"
-              class="px-8 py-3 text-gray-700 bg-gray-200 rounded font-semibold hover:bg-gray-300 transition"
-            >
+            <button type="button" @click="closeModal"
+              class="px-8 py-3 text-gray-700 bg-gray-200 rounded font-semibold hover:bg-gray-300 transition">
               Cancel
             </button>
-            <button
-              type="submit"
-              class="px-12 py-3 bg-slate-700 text-white rounded-full font-bold hover:bg-slate-800 transition shadow-lg text-lg"
-            >
+            <button type="submit"
+              class="px-12 py-3 bg-slate-700 text-white rounded-full font-bold hover:bg-slate-800 transition shadow-lg text-lg">
               Complete
             </button>
           </div>
@@ -178,14 +113,9 @@
     </div>
 
     <!-- Processing Overlay -->
-    <div
-      v-if="isProcessing"
-      class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-    >
+    <div v-if="isProcessing" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-2xl p-8 flex flex-col items-center gap-4">
-        <div
-          class="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"
-        ></div>
+        <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
         <p class="text-xl font-semibold text-gray-700">Processing Transaction...</p>
       </div>
     </div>
@@ -207,7 +137,7 @@ const props = defineProps({
   },
   warningMessage: {
     type: String,
-    default: "INVALID PAYMENT COULDN'T VERIFY REQUEST NEW PIN CODE!",
+    default: "INVALID PAYMENT COULDN'T VERIFY REQUEST PIN CODE!",
   },
 })
 
@@ -219,7 +149,7 @@ const isResizing = ref(false)
 const resizeDirection = ref('')
 const dragStart = ref({ x: 0, y: 0 })
 const modalPosition = ref({ x: 0, y: 0 })
-const modalSize = ref({ width: 672, height: 700 })
+const modalSize = ref({ width: 700, height: 620 })
 const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 })
 
 const showModal = ref(false)
@@ -238,6 +168,7 @@ const formData = ref({
 })
 
 const additionalAmounts = ref([])
+let processingTimer = null
 
 // Center modal on open
 const centerModal = () => {
@@ -352,6 +283,9 @@ onUnmounted(() => {
   document.removeEventListener('mouseup', stopDrag)
   document.removeEventListener('mouseup', stopResize)
   document.removeEventListener('keydown', handleEscapeKey)
+  if (processingTimer) {
+    clearTimeout(processingTimer)
+  }
 })
 
 // Format number with commas (e.g., 1000 -> 1,000)
@@ -462,20 +396,24 @@ const addMoreAmount = () => {
 }
 
 const submitForm = () => {
-  // Show processing overlay
+  // Show processing first, then show error after 2 seconds
+  showWarning.value = false
   isProcessing.value = true
 
-  // Simulate processing delay (2 seconds)
-  setTimeout(() => {
+  if (processingTimer) {
+    clearTimeout(processingTimer)
+  }
+
+  processingTimer = setTimeout(() => {
+    isProcessing.value = false
+    showWarning.value = true
+
     emit('submit', {
       ...formData.value,
       additionalAmounts: additionalAmounts.value,
       totalAmount: verifyAmount.value,
       warningMessage: warningMessageInput.value,
     })
-
-    closeModal()
-    isProcessing.value = false
   }, 2000)
 }
 
