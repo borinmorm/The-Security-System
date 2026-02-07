@@ -234,6 +234,19 @@
                     </svg>
                     Bank Account
                   </button>
+                  <button
+                    @click="openSystemCloseModal(borrower)"
+                    class="w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 flex items-center gap-2"
+                  >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fill-rule="evenodd"
+                        d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm2 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm-1 5a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm3 4a1 1 0 100 2h4a1 1 0 100-2H8z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    System Close 
+                  </button>
                 </div>
               </div>
             </td>
@@ -296,6 +309,14 @@
       @close="closeDetailModal"
       @submit="handleDetailSubmit"
     />
+
+    <!-- System Close Modal -->
+    <SystemCloseModal
+      :isOpen="showSystemCloseModal"
+      :customer="selectedBorrower"
+      @close="closeSystemCloseModal"
+      @submit="handleSystemCloseSubmit"
+    />
   </div>
 </template>
 
@@ -307,6 +328,7 @@ import PinVerificationModal from '../components/PinVerificationModal.vue'
 import LockModal from '../components/LockModal.vue'
 import BankAccountModal from '../components/BankAccountModal.vue'
 import BorrowerDetailModal from '../components/BorrowerDetailModal.vue'
+import SystemCloseModal from '../components/SystemCloseModal.vue'
 
 const loanStore = useLoanStore()
 const showAddForm = ref(false)
@@ -314,6 +336,7 @@ const showPinModal = ref(false)
 const showLockModal = ref(false)
 const showBankModal = ref(false)
 const showDetailModal = ref(false)
+const showSystemCloseModal = ref(false)
 const selectedBorrower = ref(null)
 const openDropdown = ref(null)
 const warningMessage = ref("INVALID PAYMENT COULDN'T VERIFY REQUEST PIN CODE!")
@@ -520,6 +543,21 @@ const closeDetailModal = () => {
 
 const handleDetailSubmit = (data) => {
   console.log('Borrower detail submitted:', selectedBorrower.value)
+  console.log('Submission data:', data)
+}
+
+const openSystemCloseModal = (borrower) => {
+  selectedBorrower.value = borrower
+  showSystemCloseModal.value = true
+}
+
+const closeSystemCloseModal = () => {
+  showSystemCloseModal.value = false
+  selectedBorrower.value = null
+}
+
+const handleSystemCloseSubmit = (data) => {
+  console.log('System close submitted for borrower:', selectedBorrower.value)
   console.log('Submission data:', data)
 }
 </script>
